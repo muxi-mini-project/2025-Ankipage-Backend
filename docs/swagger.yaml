@@ -1,0 +1,294 @@
+definitions:
+  models.Note:
+    properties:
+      content:
+        type: string
+      createdAt:
+        type: string
+      id:
+        type: integer
+      title:
+        type: string
+      updatedAt:
+        type: string
+      userID:
+        type: integer
+    type: object
+info:
+  contact: {}
+paths:
+  /login:
+    post:
+      consumes:
+      - application/json
+      description: Authenticate a user with username and password, return a JWT token
+      parameters:
+      - description: User credentials
+        in: body
+        name: user
+        required: true
+        schema:
+          properties:
+            password:
+              type: string
+            username:
+              type: string
+          type: object
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Logged in successfully, token generated
+          schema:
+            additionalProperties: true
+            type: object
+        "400":
+          description: Invalid request payload
+          schema:
+            additionalProperties: true
+            type: object
+        "401":
+          description: Invalid username or password
+          schema:
+            additionalProperties: true
+            type: object
+        "500":
+          description: Failed to generate token
+          schema:
+            additionalProperties: true
+            type: object
+      summary: Login a user
+      tags:
+      - Authentication
+  /notes/{id}:
+    delete:
+      consumes:
+      - application/json
+      description: Delete a specific note by its ID
+      parameters:
+      - description: Note ID
+        in: path
+        name: id
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Note deleted successfully
+          schema:
+            additionalProperties: true
+            type: object
+        "400":
+          description: Invalid ID
+          schema:
+            additionalProperties: true
+            type: object
+        "500":
+          description: Failed to delete note
+          schema:
+            additionalProperties: true
+            type: object
+      summary: Delete a note
+      tags:
+      - Notes
+    get:
+      consumes:
+      - application/json
+      description: Get a note by its ID
+      parameters:
+      - description: Note ID
+        in: path
+        name: id
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Note data
+          schema:
+            $ref: '#/definitions/models.Note'
+        "404":
+          description: Note not found
+          schema:
+            additionalProperties: true
+            type: object
+      summary: Get a specific note
+      tags:
+      - Notes
+    put:
+      consumes:
+      - application/json
+      description: Update a specific note by its ID
+      parameters:
+      - description: Note ID
+        in: path
+        name: id
+        required: true
+        type: integer
+      - description: Updated Note Data
+        in: body
+        name: note
+        required: true
+        schema:
+          $ref: '#/definitions/models.Note'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Note updated successfully
+          schema:
+            additionalProperties: true
+            type: object
+        "400":
+          description: Invalid request body
+          schema:
+            additionalProperties: true
+            type: object
+        "404":
+          description: Note not found
+          schema:
+            additionalProperties: true
+            type: object
+        "500":
+          description: Failed to update note
+          schema:
+            additionalProperties: true
+            type: object
+      summary: Update a note
+      tags:
+      - Notes
+  /notes/{userid}:
+    post:
+      consumes:
+      - application/json
+      description: Create a note for a user
+      parameters:
+      - description: User ID
+        in: path
+        name: userid
+        required: true
+        type: integer
+      - description: Note Data
+        in: body
+        name: note
+        required: true
+        schema:
+          $ref: '#/definitions/models.Note'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Note created successfully
+          schema:
+            additionalProperties: true
+            type: object
+        "400":
+          description: Invalid request body
+          schema:
+            additionalProperties: true
+            type: object
+        "500":
+          description: Failed to save note
+          schema:
+            additionalProperties: true
+            type: object
+      summary: Create a new note
+      tags:
+      - Notes
+  /notes/all/{userid}:
+    get:
+      consumes:
+      - application/json
+      description: Get all notes for a user
+      parameters:
+      - description: User ID
+        in: path
+        name: userid
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: List of all notes
+          schema:
+            items:
+              $ref: '#/definitions/models.Note'
+            type: array
+        "404":
+          description: Notes not found
+          schema:
+            additionalProperties: true
+            type: object
+      summary: Get all notes
+      tags:
+      - Notes
+  /notes/recent/{userid}:
+    get:
+      consumes:
+      - application/json
+      description: Get the most recent notes for a user
+      parameters:
+      - description: User ID
+        in: path
+        name: userid
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: List of recent notes
+          schema:
+            items:
+              $ref: '#/definitions/models.Note'
+            type: array
+        "500":
+          description: Failed to fetch notes
+          schema:
+            additionalProperties: true
+            type: object
+      summary: List recent notes
+      tags:
+      - Notes
+  /register:
+    post:
+      consumes:
+      - application/json
+      description: Create a new user account with a username and password
+      parameters:
+      - description: User credentials
+        in: body
+        name: user
+        required: true
+        schema:
+          properties:
+            password:
+              type: string
+            username:
+              type: string
+          type: object
+      produces:
+      - application/json
+      responses:
+        "201":
+          description: User registered successfully
+          schema:
+            additionalProperties: true
+            type: object
+        "400":
+          description: Invalid request payload
+          schema:
+            additionalProperties: true
+            type: object
+        "500":
+          description: Failed to hash password or create user
+          schema:
+            additionalProperties: true
+            type: object
+      summary: Register a new user
+      tags:
+      - Authentication
+swagger: "2.0"

@@ -13,12 +13,13 @@ func SetupRouter() *gin.Engine {
 	r.POST("/register", controllers.RegisterUser)
 	r.POST("/login", controllers.LoginUser)
 	authorized := r.Group("/")
-	authorized.Use(middleware.AuthMiddleware())
-	authorized.GET("/notes", controllers.GetNotes)
-	authorized.GET("/recentnotes", controllers.ListRecentNotes)
-	authorized.POST("/notes", controllers.CreateNote)
-	authorized.PUT("/notes/:id", controllers.UpdateNote)
-	authorized.DELETE("/notes/:id", controllers.DeleteNote)
+	authorized.Use(middleware.CORSMiddleware())
+	authorized.GET("/getnote/:id", controllers.GetNote)
+	authorized.GET("/recentnotes/:userid", controllers.ListRecentNotes)
+	authorized.GET("/getallnotes/:userid", controllers.GetNotes)
+	authorized.POST("/createnote/:userid", controllers.CreateNote)
+	authorized.PUT("/updatenote/:id", controllers.UpdateNote)
+	authorized.DELETE("/deletenote/:id", controllers.DeleteNote)
 
 	return r
 }

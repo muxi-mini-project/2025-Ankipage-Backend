@@ -14,12 +14,21 @@ var jwtKey = []byte("your_secret_key") // 替换为安全的密钥
 
 // Token 数据结构
 type Claims struct {
-	UserID uint `json:"user_id"`
+	UserID int `json:"user_id"`
 	jwt.StandardClaims
 }
 
-// 注册用户
-func Register(c *gin.Context) {
+// @Summary Register a new user
+// @Description Create a new user account with a username and password
+// @Tags Authentication
+// @Accept json
+// @Produce json
+// @Param user body object{username=string,password=string} true "User credentials"
+// @Success 201 {object} map[string]interface{} "User registered successfully"
+// @Failure 400 {object} map[string]interface{} "Invalid request payload"
+// @Failure 500 {object} map[string]interface{} "Failed to hash password or create user"
+// @Router /register [post]
+func RegisterUser(c *gin.Context) {
 	var input struct {
 		Username string `json:"username" binding:"required"`
 		Password string `json:"password" binding:"required"`
@@ -46,12 +55,23 @@ func Register(c *gin.Context) {
 		c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to create user"})
 		return
 	}
-
 	c.JSON(http.StatusCreated, gin.H{"message": "User registered successfully"})
+	c.JSON(http.StatusOK, user)
 }
 
 // 登录用户
-func Login(c *gin.Context) {
+// @Summary Login a user
+// @Description Authenticate a user with username and password, return a JWT token
+// @Tags Authentication
+// @Accept json
+// @Produce json
+// @Param user body object{username=string,password=string} true "User credentials"
+// @Success 200 {object} map[string]interface{} "Logged in successfully, token generated"
+// @Failure 400 {object} map[string]interface{} "Invalid request payload"
+// @Failure 401 {object} map[string]interface{} "Invalid username or password"
+// @Failure 500 {object} map[string]interface{} "Failed to generate token"
+// @Router /login [post]
+func LoginUser(c *gin.Context) {
 	var input struct {
 		Username string `json:"username" binding:"required"`
 		Password string `json:"password" binding:"required"`
@@ -93,4 +113,5 @@ func Login(c *gin.Context) {
 	c.SetCookie("token", tokenString, int(expirationTime.Sub(time.Now()).Seconds()), "/", "", false, true)
 
 	c.JSON(http.StatusOK, gin.H{"message": "Logged in successfully"})
+	c.JSON(http.StatusOK, user)
 }

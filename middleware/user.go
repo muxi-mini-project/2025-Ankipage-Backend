@@ -1,34 +1,25 @@
 package middleware
 
 import (
-	"Ankipage/controllers"
-	"github.com/dgrijalva/jwt-go"
 	"github.com/gin-gonic/gin"
 	"net/http"
 )
 
-func AuthMiddleware() gin.HandlerFunc {
+func CORSMiddleware() gin.HandlerFunc {
 	return func(c *gin.Context) {
-		tokenString, err := c.Cookie("token")
-		if err != nil {
-			c.JSON(http.StatusUnauthorized, gin.H{"error": "Unauthorized"})
-			c.Abort()
+		// 设置 CORS 相关头部信息
+		c.Writer.Header().Set("Access-Control-Allow-Origin", "*")         // 允许所有来源（根据需要限制特定来源）
+		c.Writer.Header().Set("Access-Control-Allow-Credentials", "true") // 是否允许发送 Cookie
+		c.Writer.Header().Set("Access-Control-Allow-Headers", "Content-Type, Authorization, X-Requested-With")
+		c.Writer.Header().Set("Access-Control-Allow-Methods", "GET, POST, PUT, DELETE, OPTIONS")
+
+		// 对 OPTIONS 请求直接返回
+		if c.Request.Method == http.MethodOptions {
+			c.AbortWithStatus(http.StatusOK)
 			return
 		}
 
-		claims := &controllers.Claims{}
-		token, err := jwt.ParseWithClaims(tokenString, claims, func(token *jwt.Token) (interface{}, error) {
-			return controllers.JwtKey, nil
-		})
-
-		if err != nil || !token.Valid {
-			c.JSON(http.StatusUnauthorized, gin.H{"error": "Unauthorized"})
-			c.Abort()
-			return
-		}
-
-		// 将用户 ID 保存到上下文
-		c.Set("userID", claims.UserID)
+		// 继续后续的处理
 		c.Next()
 	}
 }
